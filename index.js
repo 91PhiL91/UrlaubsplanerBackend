@@ -1,29 +1,33 @@
 const express = require('express'); // Importieren des Express-Frameworks
 const app = express(); // Erstellen einer Express-App
 const User = require('./controller/models/userModel')
-
-const Sequelize = require('sequelize');
-const sequelize = new Sequelize('sqlite:./database/UrlaubsplanerDatenbank.db',  { 
-  host: 'localhost',
-  port: '3000',
-  dialect: 'sqlite',
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
-  },
- // storage: 'sqlite:./Urlaubsplaner'
-});
-
+const Team = require('./controller/models/teamModel')
+const router = express.Router();
 
 
   
-  User.findAll().then((user) => { // Abfragen aller Benutzer aus der Datenbank
-    console.log(user); // Ausgabe des ersten Benutzers als JSON
-  }).catch((err) => {
-    console.error('Unable to query users:', err);
+ 
+  app.get('/api/user', (req, res) => {
+    User.findAll().then(user => {
+      console.log(user);
+      res.send(user);
+    }).catch((err) => {
+      console.error('Unable to query users:', err);
+      res.sendStatus(500);
+    });
   });
+
+
+//  Team.findAll().then((team)=>{
+//     console.log(team);
+//  });
+  
+//   User.findAll().then((user) => { // Abfragen aller Benutzer aus der Datenbank
+//     console.log(user); //Ausgabe der Benutzer in Konsole
+    
+//   }).catch((err) => {
+//     console.error('Unable to query users:', err);
+//   });
 
 
 

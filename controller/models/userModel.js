@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize = require('./controller/dbConnector/sqlite/sqliteConnector');
+const sequelize = require('../dbConnector/sqlite/sqliteConnector');
 
 
 const User = sequelize.define('User', {
@@ -42,12 +42,12 @@ const User = sequelize.define('User', {
   token: {
     type: Sequelize.STRING
   },
-  teamId: {
+  teamID: {
     type: Sequelize.INTEGER,
-//    references: {
-//       model: 'Team',
-//       key: 'teamId'
-//     }
+   references: {
+      model: 'Team',
+      key: 'teamID'
+    }
   }
 },{
   tableName: "User"
