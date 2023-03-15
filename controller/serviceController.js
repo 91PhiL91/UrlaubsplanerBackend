@@ -1,7 +1,54 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../model/userModel');
-const Team = require('../teamModel');
+const User = require('./models/userModel');
+const Team = require('./models/teamModel');
+const app = express();
+
+
+
+/*------------------------------------TEST-API/---------------------------------------------------------*/
+
+
+router.get('/api/user', async (req, res) => {
+  var users = await User.findAll().then(users => {
+    console.log(users);
+    res.send({users});
+  }).catch((err) => {
+    console.error('Unable to query users:', err);
+    res.sendStatus(500);
+  });
+});
+
+
+router.get('/api/team', async (req, res) => {
+  var teams = await Team.findAll().then(teams => {
+    console.log(teams);
+    res.send({teams});
+  }).catch((err) => {
+    console.error('Unable to query users:', err);
+    res.sendStatus(500);
+  });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* -------------------------------------------------------------------API/LOGIN------------------------------------------------------------------------------------*/
@@ -61,3 +108,19 @@ router.get('/api/user', async (req, res) => {
     }
   });
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports = router;
