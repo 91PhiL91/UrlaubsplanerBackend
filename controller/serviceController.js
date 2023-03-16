@@ -4,7 +4,7 @@ var jwt = require('jsonwebtoken');
 const User = require('./models/userModel');
 const Team = require('./models/teamModel');
 const authHelper = require("../helper/authHelper");
-
+const { v4: uuidv4 } = require('uuid');
 
 
 /*------------------------------------TEST-API/---------------------------------------------------------*/
@@ -76,7 +76,7 @@ router.post('/api/user', async (req, res) => {
   console.log("POST auf /api/user");
   User.sync().then(() => {
     const newUser = User.build({
-      userID: req.body.userID,
+      userID: uuidv4(),
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       passwort: "ABC123",
