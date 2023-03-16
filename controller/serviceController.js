@@ -6,20 +6,21 @@ const Team = require('./models/teamModel');
 const authHelper = require("../helper/authHelper");
 const { v4: uuidv4 } = require('uuid');
 const { hashPassword } = require('../helper/hashHelper');
+const bcrypt = require('bcrypt');
 
 
 /*------------------------------------TEST-API/---------------------------------------------------------*/
 
 
-router.get('/api/user', async (req, res) => {
-  var users = await User.findAll().then(users => {
-    console.log(users);
-    res.send({ users });
-  }).catch((err) => {
-    console.error('Unable to query users:', err);
-    res.sendStatus(500);
-  });
-});
+// router.get('/api/user', async (req, res) => {
+//   var users = await User.findAll().then(users => {
+//     console.log(users);
+//     res.send({ users });
+//   }).catch((err) => {
+//     console.error('Unable to query users:', err);
+//     res.sendStatus(500);
+//   });
+// });
 
 
 router.get('/api/team', async (req, res) => {
@@ -41,27 +42,58 @@ router.get('/api/team', async (req, res) => {
 //Postman --> http://localhost:3000/api/userDetail?email=test@mail.de&password=1234
 
 /*---Login Ablgeich---*/
-router.get('/api/userDetail', authHelper, async (req, res) => {
-  var userEmail = req.query.email;
-  var userPW = req.query.password;
-  const user = await User.findOne({ where: { userEmail } });
-  if (user && (user.dataValues.passwort === userPW)) {
-    const token = jwt.sign(
-      { user_id: userEmail },
-      "secret",
-      {
-        expiresIn: "900000ms",
-      }
-    );
-    console.log(user);
-    user.dataValues.token = token;
-    res.send({ "userId": user.dataValues.userId, "token": user.dataValues.token });
+// router.get('/api/userDetail' ,/* authHelper*/ async (req, res) => {
+//   var email = req.query.email;
+//   var userPW = req.query.password;
+//   const user = await User.findOne({ where: { email } });
+//   if (user && (user.dataValues.password === userPW)) {
+//     const token = jwt.sign(
+//       { user_id: email },
+//       "secret",
+//       {
+//         expiresIn: "900000ms",
+//       }
+//     );
+//     console.log(user);
+//     user.dataValues.token = token;
+//     res.send({ "userID": user.dataValues.userID, "token": user.dataValues.token });
+//   } else {
+//     res.status(404).send('Falsches Passwort');
+//   }
+// });
+
+router.get('/api/userDetail', async (req, res) => {
+  const email = req.query.email;
+  const password = req.query.password;
+  
+  const user = await User.findOne({ where: { email } });
+
+  if (user) {
+    const hashedPassword = user.password;
+
+    const passwordMatch = await comparePassword(password, hashedPassword);
+
+    if (passwordMatch) {
+      const token = jwt.sign(
+        { user_id: email },
+        "secret",
+        {
+          expiresIn: "900000ms",
+        }
+      );
+      user.token = token;
+      res.send({ userID: user.userID, token });
+    } else {
+      res.status(401).send('Falsches Passwort');
+    }
   } else {
-    res.status(404).send('Falsches Passwort');
+    res.status(404).send('Benutzer nicht gefunden');
   }
 });
 
-
+async function comparePassword(password, hashedPassword) {
+  return await bcrypt.compare(password, hashedPassword);
+}
 
 
 
@@ -94,16 +126,16 @@ router.post('/api/user', async (req, res) => {
       plannedVacation: req.body.plannedVacation,
       takedVacation: req.body.takedVacation,
       note: req.body.note,
-      token: req.body.token,
       teamID: req.body.teamID
     })
 
     
-    console.log(newUser);
+   
     console.log("Hash Password nach user hinzufügen ", hashedPassword);
     newUser.save()
       .then(() => {
         console.log('User wurde gespeichert.');
+        res.send(newUser);
 
       })
       .catch((error) => {
@@ -122,7 +154,7 @@ router.post('/api/user', async (req, res) => {
 
 
 
-
+/* -------------------------------------------------------------------API/USERTEAM------------------------------------------------------------------------------------*/
 
 
 

@@ -39,9 +39,7 @@ const User = sequelize.define('User', {
   note: {
     type: Sequelize.STRING
   },
-  token: {
-    type: Sequelize.STRING
-  },
+ 
   teamID: {
     type: Sequelize.INTEGER,
    references: {
