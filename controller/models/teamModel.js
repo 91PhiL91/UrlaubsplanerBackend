@@ -3,14 +3,14 @@ const sequelize = require('../dbConnector/sqlite/sqliteConnector');
 
 
 const Team = sequelize.define('Team', {
-    teamId: {
-      type: Sequelize.INTEGER,
+    teamID: {
+      type: Sequelize.STRING,
       primaryKey: true,
       unique: true,
-      autoIncrement: true
+      
     },
     teamLeaderID: {
-      type: Sequelize.INTEGER
+      type: Sequelize.STRING
     },
     teamName: {
       type: Sequelize.STRING

@@ -23,15 +23,15 @@ const bcrypt = require('bcrypt');
 // });
 
 
-router.get('/api/team', async (req, res) => {
-  var teams = await Team.findAll().then(teams => {
-    console.log(teams);
-    res.send({ teams });
-  }).catch((err) => {
-    console.error('Unable to query users:', err);
-    res.sendStatus(500);
-  });
-});
+// router.get('/api/team', async (req, res) => {
+//   var teams = await Team.findAll().then(teams => {
+//     console.log(teams);
+//     res.send({ teams });
+//   }).catch((err) => {
+//     console.error('Unable to query users:', err);
+//     res.sendStatus(500);
+//   });
+// });
 
 
 
@@ -42,30 +42,10 @@ router.get('/api/team', async (req, res) => {
 //Postman --> http://localhost:3000/api/userDetail?email=test@mail.de&password=1234
 
 /*---Login Ablgeich---*/
-// router.get('/api/userDetail' ,/* authHelper*/ async (req, res) => {
-//   var email = req.query.email;
-//   var userPW = req.query.password;
-//   const user = await User.findOne({ where: { email } });
-//   if (user && (user.dataValues.password === userPW)) {
-//     const token = jwt.sign(
-//       { user_id: email },
-//       "secret",
-//       {
-//         expiresIn: "900000ms",
-//       }
-//     );
-//     console.log(user);
-//     user.dataValues.token = token;
-//     res.send({ "userID": user.dataValues.userID, "token": user.dataValues.token });
-//   } else {
-//     res.status(404).send('Falsches Passwort');
-//   }
-// });
-
 router.get('/api/userDetail', async (req, res) => {
   const email = req.query.email;
   const password = req.query.password;
-  
+
   const user = await User.findOne({ where: { email } });
 
   if (user) {
@@ -105,15 +85,15 @@ async function comparePassword(password, hashedPassword) {
 
 
 /*---CreateNew User in DB--- */
-router.post('/api/user', async (req, res) => {
+router.post('/api/User', async (req, res) => {
 
-   const hashedPassword = await hashPassword(req.body.password);
+  const hashedPassword = await hashPassword(req.body.password);
 
-   console.log("Das ist das gehaste Passwort : " , hashedPassword);
+  console.log("Das ist das gehaste Passwort : ", hashedPassword);
 
   console.log("POST auf /api/user");
   User.sync().then(() => {
-   
+
     const newUser = User.build({
       userID: uuidv4(),
       firstName: req.body.firstName,
@@ -129,8 +109,8 @@ router.post('/api/user', async (req, res) => {
       teamID: req.body.teamID
     })
 
-    
-   
+
+
     console.log("Hash Password nach user hinzufügen ", hashedPassword);
     newUser.save()
       .then(() => {
@@ -157,8 +137,59 @@ router.post('/api/user', async (req, res) => {
 /* -------------------------------------------------------------------API/USERTEAM------------------------------------------------------------------------------------*/
 
 
+/*---Create Team in DB--- */
+router.post('/api/Team', async (req, res) => {
+  try {
+    await Team.sync(); // Synchronisieren Sie das Modell mit der Datenbank
+
+    
+
+    const newTeam = Team.build({
+      teamID: uuidv4(), // Generiert eine neue UUID
+      teamLeaderID: req.body.teamLeaderID,
+      teamName: req.body.teamName
+    });
+    console.log(newTeam);
+    await newTeam.save(); // Speicherz das neue Team in der Datenban
+
+    console.log('Team wurde gespeichert.');
+    res.send(newTeam); // Sendet das gespeicherte Team als Response zurück
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: 'Fehler beim Speichern des Teams.' }); // Sendet eine Fehlermeldung als Response zurück
+  }
+});
+
+module.exports = router;
+
+/*---Create Team in DB--- */
+// router.post('/api/Team', async (req, res) => {
+//   Team.sync().then(() => {
+//     const newTeam = Team.build({
+//       teamID: uuidv4(),
+//       teamLeaderID: req.body.teamLeaderID,
+//       teamName: req.body.teamName
+
+//     })
+//     newTeam.save()
+//       .then(() => {
+//         console.log('Team wurde gespeichert.');
+//         res.send(newTeam);
+
+//       })
+//       .catch((error) => {
+//         // console.error(error);
+//         res.send({ error });
+//       });
 
 
+// Team.findAll().then(Team => {
+
+//   //console.log(team);
+//   res.send({ Team });
+// });
+//   });
+// });
 
 
 

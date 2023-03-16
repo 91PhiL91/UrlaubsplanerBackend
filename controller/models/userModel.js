@@ -4,10 +4,10 @@ const sequelize = require('../dbConnector/sqlite/sqliteConnector');
 
 const User = sequelize.define('User', {
   userID: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.STRING,
     primaryKey: true,
     unique: true,
-    autoIncrement: true
+    
   },
   firstName: {
     type: Sequelize.STRING
@@ -41,7 +41,7 @@ const User = sequelize.define('User', {
   },
  
   teamID: {
-    type: Sequelize.INTEGER,
+    type: Sequelize.STRING,
    references: {
       model: 'Team',
       key: 'teamID'
