@@ -5,6 +5,7 @@ const User = require('./models/userModel');
 const Team = require('./models/teamModel');
 const Vacation = require('./models/vacationModel');
 const Role = require('./models/roleModel');
+const UserRole = require('./models/userRoleModel');
 const authHelper = require("../helper/authHelper");
 const { v4: uuidv4 } = require('uuid');
 const { hashPassword } = require('../helper/hashHelper');
@@ -44,7 +45,7 @@ const bcrypt = require('bcrypt');
 //Postman --> http://localhost:3000/api/userDetail?email=test@mail.de&password=1234
 
 /*---Login Ablgeich---*/
-router.get('/api/userDetail', async (req, res) => {
+router.get('/api/UserDetail', async (req, res) => {
   try {
     const email = req.query.email;
     const password = req.query.password;
@@ -132,7 +133,7 @@ router.post('/api/User', async (req, res) => {
 
     console.log("Das ist das gehaste Passwort : ", hashedPassword);
 
-    console.log("POST auf /api/user");
+  
     await User.sync();
     const newUser = User.build({
       userID: uuidv4(),
@@ -159,6 +160,44 @@ router.post('/api/User', async (req, res) => {
     res.send({ error }); // noch erweitern wenn nötig
   }
 });
+
+
+/*--- Update User in DB---*/
+router.put('/api/User', async (req, res) => {
+  try {
+  // Überprüfen, ob die angegebene teamId in der Team Tabelle vorhanden ist
+
+  if(req.body.teamId){
+  const team = await Team.findByPk(req.body.teamID);
+  if (!team) {
+  res.status(400).send('Ungültige teamId');
+  return;
+  }
+  }
+  console.log(req.body);
+  //Aktualisiere den User mit den angegebenen Werten
+  await User.update({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    //Password in extra Route??
+    email: req.body.email,
+    role: req.body.role,
+    totalVacation: req.body.totalVacation,
+    restVacation: req.body.restVacation,
+    plannedVacation: req.body.plannedVacation,
+    takedVacation: req.body.takedVacation,
+    note: req.body.note,
+    teamID: req.body.teamID
+  },
+  { where: { userID: req.body.userID } });
+
+  console.log("Benutzer aktualisiert");
+  res.status("200").send('OK');
+} catch (error) {
+  console.error(error);
+  res.send({ error });
+  }
+  });
 
 
 /*--------------------------ohne Fehler Handling
@@ -341,6 +380,82 @@ router.post('/api/Role', async (req, res) => {
     res.status(500).send({ error });
   }
 });
+
+
+
+
+
+
+
+/* -------------------------------------------------------------------API/UserRole------------------------------------------------------------------------------------*/
+
+
+router.get('/api/UserRole', async(req, res) =>{
+  try {
+    var userRoles = await UserRole.findAll({
+      attributes: ['userRoleID', 'userID'],
+      include: [{
+        model: Role,
+        attributes: ['name'],
+        where: {
+          name: 'role' 
+        }
+      }]
+    });
+    res.send(userRoles);
+  } catch(error){
+    console.error(error);
+    res.status(500).send({error});
+  }
+});
+
+
+
+
+
+
+/*--UserRole Abfragen--*/
+// router.get('/api/UserRole', async(req, res) =>{
+// try {
+
+// var userRole = await UserRole.findAll();
+
+// res.send(userRole);
+
+
+// }catch(error){
+//   console.error(error);
+//   res.status(500).send({error});
+// }
+
+
+// });
+
+
+
+
+
+/*--UserRole erstellen---*/
+router.post('/api/UserRole', async (req, res) => {
+  try {
+    const data = req.body;
+    console.log(data);
+    const newUserRole = UserRole.build({
+      userRoleID: uuidv4(),
+      userID: req.body.userID,
+      roleID: req.body.roleID,
+     
+    });
+
+    await newUserRole.save();
+    console.log('Mitarbeiter wurde erfogleich eine Rolle zugewiesen.');
+    res.status(200).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error });
+  }
+});
+
 
 
 module.exports = router;

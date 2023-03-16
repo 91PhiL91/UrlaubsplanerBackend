@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../dbConnector/sqlite/sqliteConnector');
+const User = require('./userModel');
 const Role = require('./roleModel');
 
 const UserRole = sequelize.define('UserRole',{

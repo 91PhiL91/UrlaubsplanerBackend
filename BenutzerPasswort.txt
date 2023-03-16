@@ -1,0 +1,11 @@
+"firstName": "Rick",
+    "password": "4321",
+    "lastName": "Mitarbeiter",
+    "email": "rick@mitarbeiter.com",
+    "role": "Mitarbeiter",
+    "totalVacation": 25,
+    "restVacation": 5,
+    "plannedVacation": 20,
+    "takedVacation": 0,
+    "note": "Im Team Anwendungs..",
+    "teamID": "4cad0e28-6f83-483c-9351-d95390942a1d"
