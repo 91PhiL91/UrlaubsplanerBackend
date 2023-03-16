@@ -3,6 +3,7 @@ const router = express.Router();
 var jwt = require('jsonwebtoken');
 const User = require('./models/userModel');
 const Team = require('./models/teamModel');
+const Vacation = require('./models/vacationModel');
 const authHelper = require("../helper/authHelper");
 const { v4: uuidv4 } = require('uuid');
 const { hashPassword } = require('../helper/hashHelper');
@@ -190,6 +191,30 @@ module.exports = router;
 // });
 //   });
 // });
+
+/* -------------------------------------------------------------------API/URLAUB------------------------------------------------------------------------------------*/
+
+/*---Gebuchter Urlaub wird vom Fontend an das Backend gesendet und in die Datenbank geschrieben--- */
+router.post('/api/Vacation', async (req, res) => {
+  var data = req.body;
+  console.log(data);
+  var newUrlaub = Vacation.build({
+    vacationID: uuidv4(),
+    status: req.body.status,
+    title: req.body.titel,
+    startDate:req.body.startDate,
+    endDate: req.body.endDate,
+    userID: req.body.userID,    
+    
+  });
+
+  newUrlaub.save()
+    .then(() => {
+      // console.log('Urlaub wurde gespeichert.');
+      res.status(200).send();
+    })
+});
+
 
 
 
