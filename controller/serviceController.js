@@ -390,22 +390,30 @@ router.post('/api/Role', async (req, res) => {
 /* -------------------------------------------------------------------API/UserRole------------------------------------------------------------------------------------*/
 
 
-router.get('/api/UserRole', async(req, res) =>{
+User.belongsToMany(Role, { through: UserRole });
+Role.belongsToMany(User, { through: UserRole });
+UserRole.belongsTo(User);
+UserRole.belongsTo(Role);
+
+// Route-Handler
+router.get('/api/UserRole', async(req, res) => {
   try {
-    var userRoles = await UserRole.findAll({
-      attributes: ['userRoleID', 'userID'],
-      include: [{
-        model: Role,
-        attributes: ['name'],
-        where: {
-          name: 'role' 
-        }
-      }]
+    const userRoles = await UserRole.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ['userName'], // wählen Sie die Attribute aus, die Sie benötigen
+        },
+        {
+          model: Role,
+          attributes: ['roleName'], // wählen Sie die Attribute aus, die Sie benötigen
+        },
+      ],
     });
     res.send(userRoles);
-  } catch(error){
+  } catch(error) {
     console.error(error);
-    res.status(500).send({error});
+    res.status(500).send({ error });
   }
 });
 
