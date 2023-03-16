@@ -5,6 +5,7 @@ const User = require('./models/userModel');
 const Team = require('./models/teamModel');
 const authHelper = require("../helper/authHelper");
 const { v4: uuidv4 } = require('uuid');
+const { hashPassword } = require('../helper/hashHelper');
 
 
 /*------------------------------------TEST-API/---------------------------------------------------------*/
@@ -73,13 +74,19 @@ router.get('/api/userDetail', authHelper, async (req, res) => {
 
 /*---CreateNew User in DB--- */
 router.post('/api/user', async (req, res) => {
+
+   const hashedPassword = await hashPassword(req.body.password);
+
+   console.log("Das ist das gehaste Passwort : " , hashedPassword);
+
   console.log("POST auf /api/user");
   User.sync().then(() => {
+   
     const newUser = User.build({
       userID: uuidv4(),
       firstName: req.body.firstName,
       lastName: req.body.lastName,
-      passwort: "ABC123",
+      password: hashedPassword,
       email: req.body.email,
       role: req.body.role,
       totalVacation: req.body.totalVacation,
@@ -90,7 +97,10 @@ router.post('/api/user', async (req, res) => {
       token: req.body.token,
       teamID: req.body.teamID
     })
+
+    
     console.log(newUser);
+    console.log("Hash Password nach user hinzufügen ", hashedPassword);
     newUser.save()
       .then(() => {
         console.log('User wurde gespeichert.');
