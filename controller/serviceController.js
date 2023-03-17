@@ -133,7 +133,7 @@ router.post('/api/User', async (req, res) => {
 
     console.log("Das ist das gehaste Passwort : ", hashedPassword);
 
-  
+
     await User.sync();
     const newUser = User.build({
       userID: uuidv4(),
@@ -165,39 +165,39 @@ router.post('/api/User', async (req, res) => {
 /*--- Update User in DB---*/
 router.put('/api/User', async (req, res) => {
   try {
-  // Überprüfen, ob die angegebene teamId in der Team Tabelle vorhanden ist
+    // Überprüfen, ob die angegebene teamId in der Team Tabelle vorhanden ist
 
-  if(req.body.teamId){
-  const team = await Team.findByPk(req.body.teamID);
-  if (!team) {
-  res.status(400).send('Ungültige teamId');
-  return;
-  }
-  }
-  console.log(req.body);
-  //Aktualisiere den User mit den angegebenen Werten
-  await User.update({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    //Password in extra Route??
-    email: req.body.email,
-    role: req.body.role,
-    totalVacation: req.body.totalVacation,
-    restVacation: req.body.restVacation,
-    plannedVacation: req.body.plannedVacation,
-    takedVacation: req.body.takedVacation,
-    note: req.body.note,
-    teamID: req.body.teamID
-  },
-  { where: { userID: req.body.userID } });
+    if (req.body.teamId) {
+      const team = await Team.findByPk(req.body.teamID);
+      if (!team) {
+        res.status(400).send('Ungültige teamId');
+        return;
+      }
+    }
+    console.log(req.body);
+    //Aktualisiere den User mit den angegebenen Werten
+    await User.update({
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      //Password in extra Route??
+      email: req.body.email,
+      role: req.body.role,
+      totalVacation: req.body.totalVacation,
+      restVacation: req.body.restVacation,
+      plannedVacation: req.body.plannedVacation,
+      takedVacation: req.body.takedVacation,
+      note: req.body.note,
+      teamID: req.body.teamID
+    },
+      { where: { userID: req.body.userID } });
 
-  console.log("Benutzer aktualisiert");
-  res.status("200").send('OK');
-} catch (error) {
-  console.error(error);
-  res.send({ error });
+    console.log("Benutzer aktualisiert");
+    res.status("200").send('OK');
+  } catch (error) {
+    console.error(error);
+    res.send({ error });
   }
-  });
+});
 
 
 /*--------------------------ohne Fehler Handling
@@ -368,8 +368,8 @@ router.post('/api/Role', async (req, res) => {
     console.log(data);
     const newRole = Role.build({
       roleID: uuidv4(),
-      role: req.body.role,
-     
+      roleName: req.body.roleName,
+
     });
 
     await newRole.save();
@@ -390,19 +390,73 @@ router.post('/api/Role', async (req, res) => {
 /* -------------------------------------------------------------------API/UserRole------------------------------------------------------------------------------------*/
 
 
-User.belongsToMany(Role, { through: UserRole });
-Role.belongsToMany(User, { through: UserRole });
-UserRole.belongsTo(User);
-UserRole.belongsTo(Role);
+router.get('/api/UserRole', async (req, res) => {
+  try {
+    const userRoles = await UserRole.findAll({ include: [User, Role] }); // vll user.firstName   also direj auf variable zeigen.
+    const formattedUsers = userRoles.map(userRole => {
+      return {
+        firstName: userRole.User.firstName,
+        lastName: userRole.User.lastName,
+        role: userRole.Role.roleName
+      }
+    });
+    res.send({ users: formattedUsers });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Internal server error' });
+  }
+});
+
+
+
+
+
+
+/*---- Versuch 3
+
+router.get('/api/UserRole', async (req, res) => {
+  try {
+    UserRole.belongsToMany(User, { through: UserRole });
+    Role.belongsToMany(User, { through: UserRole });
+   
+    const userRoles = await UserRole.findAll({ include: [User, Role] });
+    const formattedUsers = userRoles.map(userRole => {
+      return {
+        firstName: userRole.User.firstName,
+        lastName: userRole.User.lastName,
+        role: userRole.Role.roleName
+      }
+    });
+    res.send({ users: formattedUsers });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: 'Internal server error' });
+  }
+});
+
+
+----*/
+
+
+
+
+/*----- Versuch 2-----
 
 // Route-Handler
-router.get('/api/UserRole', async(req, res) => {
+router.get('/api/UserRole', async (req, res) => {
   try {
+    User.belongsToMany(User, { through: UserRole });
+    Role.belongsToMany(Role, { through: UserRole });
+    UserRole.belongsTo(User);
+    UserRole.belongsTo(Role);
+
+
+
     const userRoles = await UserRole.findAll({
       include: [
         {
           model: User,
-          attributes: ['userName'], // wählen Sie die Attribute aus, die Sie benötigen
+          attributes: ['firstName, lastName'], // wählen Sie die Attribute aus, die Sie benötigen
         },
         {
           model: Role,
@@ -411,13 +465,14 @@ router.get('/api/UserRole', async(req, res) => {
       ],
     });
     res.send(userRoles);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
     res.status(500).send({ error });
   }
+
 });
 
-
+---*/
 
 
 
@@ -452,7 +507,7 @@ router.post('/api/UserRole', async (req, res) => {
       userRoleID: uuidv4(),
       userID: req.body.userID,
       roleID: req.body.roleID,
-     
+
     });
 
     await newUserRole.save();

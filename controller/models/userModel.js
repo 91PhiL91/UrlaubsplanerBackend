@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../dbConnector/sqlite/sqliteConnector');
+const UserRole = require('./userRoleModel');
 
 
 const User = sequelize.define('User', {
@@ -50,5 +51,7 @@ const User = sequelize.define('User', {
 },{
   tableName: "User"
 });
+
+User.hasMany(UserRole, {foreignKey: "userID", as: "User"});
 
 module.exports = User;
